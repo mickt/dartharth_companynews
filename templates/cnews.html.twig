@@ -1,0 +1,23 @@
+<div class="cnews clearfix">
+	{% for item in cnews %}
+		<div class="cnews-item">
+			<div class="cnews_img">
+				<img src="{{ item.img }}" loading="lazy" />
+			</div>
+			<div class="cnews-head">
+				<div class="cnews_time">
+					{{ item.date }}
+				</div>
+				<a href="{{ item.url }}">
+					<div class="cnews-title">
+						<div class="cnews-title-row">
+							<div class="cnews-title-cell">
+								<span>{{ item.name }}</span>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		</div>
+	{% endfor %}
+</div>
