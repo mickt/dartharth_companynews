@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ */
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
+
+function dartharth_companynews_theme() {
+    $cnews = [];
+
+    $nodeStorage = \Drupal::entityTypeManager()->getStorage('node');
+    $term_id = 979;
+    $ids = $nodeStorage->getQuery()
+        ->condition('status', 1)
+        ->condition('type', 'company_news')
+        ->condition('field_taxonomy_news', $term_id)
+        ->sort('created', 'DESC')
+        ->pager(5)
+    ->execute();
+    $news_node = $nodeStorage->loadMultiple($ids);
+
+    foreach ($news_node as $key => $news) {
+        $news_title = $news->title->value;
+
+        $news_url = \Drupal::service('path_alias.manager')->getAliasByPath('/node/'.$news->nid->value);
+
+        $news_body = $news->body->value;
+        preg_match('/<img.+src=[\'"](?P<src>.+?)[\'"].*>/i', $news_body, $image);
+        $image_public_url = str_replace('/files/', '', $image['src']);
+        $style = \Drupal::entityTypeManager()->getStorage('image_style')->load('news_aside_grid');
+        $image_url = $style->buildUrl($image_public_url);
+
+        //$created = format_date($node->created, 'custom', 'l, j F Y');
+        $created = \Drupal::service('date.formatter')->format($news->getCreatedTime(), 'custom', 'd M y');
+
+        $cnews[$key]['name'] =  $news_title;
+        $cnews[$key]['url'] = $news_url;
+        $cnews[$key]['date'] = $created;
+        $cnews[$key]['img'] = $image_url;
+    }
+
+    $info['cnews'] = [
+        'variables' => [
+            'cnews' => $cnews,
+        ],
+    ];
+    return $info;
+}
